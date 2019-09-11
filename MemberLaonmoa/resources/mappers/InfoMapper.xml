@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Info">
+	<!-- 축제 리스트 -->
+	<select id="festivallist" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.InfoVO">
+		SELECT * from info where
+		level=#{level} 
+		<if test="month!=0">
+			<![CDATA[ AND #{month} between month(sdate) AND month(edate) ]]>
+			 <![CDATA[ AND #{year} between year(sdate) AND year(edate) ]]>
+		</if>
+		order by fno desc limit #{pagenum},#{contentnum};
+	</select>
+	
+	<!-- 상세보기 리뷰게시판 리스트 -->
+	<select id="DetailReview" parameterType="int" resultType="com.laonmoa.member.VO.ReviewBoardVO">
+	SELECT * FROM hoohee0331.board where fno = #{fno} and level = 4 order by hit desc;
+	</select>
+	
+	<!-- 축제 카운트 -->
+	<select id="festivalcount" parameterType="int"
+		resultType="String">
+		SELECT count(fno) from info where level=#{level};
+	</select>
+	<!-- 날짜 카운트 -->
+	<select id="culturedatecount" resultType="String" parameterType="java.util.Map">
+		SELECT count(fno) from info where level=#{level} 
+		<![CDATA[ AND #{month} between month(sdate) AND month(edate) ]]>
+		<![CDATA[ AND #{year} between year(sdate) AND year(edate) ]]>
+	</select>
+	 <!-- 날짜 태그 조회 -->
+	 <select id="date" resultType="com.laonmoa.member.VO.InfoVO"
+		parameterType="java.util.Map">
+		select * from info where level=#{level} 
+		<![CDATA[ AND #{month} between month(sdate) AND month(edate) ]]>
+		<![CDATA[ AND #{year} between year(sdate) AND year(edate) ]]>
+		ORDER BY sdate desc limit
+		#{pagenum},#{contentnum};
+	</select>  
+	
+	<!-- 날짜및 지역 태그 조회 -->
+	<!-- <select id = "tag" parameterType="java.util.Map" resultType ="com.laonmoa.member.VO.InfoVO">
+		select * from laonmoa.info where level=7 
+		<if test="value != null">
+		AND location_1 like concat(#{value},'%')
+		</if> 
+		<if test="month != null">
+		<![CDATA[ AND #{month} between month(sdate) AND month(edate) ]]>
+		<![CDATA[ AND #{year} between year(sdate) AND year(edate) ]]>
+		</if>
+		ORDER BY sdate desc limit
+		#{pagenum},#{contentnum};
+	</select> -->
+	<!-- 최신순 -->
+	<select id="Newest" resultType="com.laonmoa.member.VO.InfoVO">
+		SELECT * FROM INFO where level=#{level} ORDER BY sdate desc limit
+		#{pagenum},#{contentnum};
+	</select>
+	<!-- 상세 보기 -->
+	<select id="Detail" resultType="com.laonmoa.member.VO.InfoVO"
+		parameterType="int">
+		SELECT * FROM info where fno =#{fno};
+	</select>
+
+	<!-- 페이징을 위한 내꺼모아리스트 갯수 -->
+	<select id="mymoaCnt" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(num)
+		FROM hoohee0331.wishlist
+		JOIN hoohee0331.info ON wishlist.fno = info.fno
+		WHERE wishlist.level =
+		#{level}
+		<!-- 세션아이디가 있을 때 -->
+		<if test='id != "!"'>
+			AND wishlist.id = #{id}
+			<if test="flevel != -1">
+				AND info.level = #{flevel}
+			</if>
+		</if>
+	</select>
+	<!-- 내꺼모아리스트 -->
+	<select id="mymoa" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.InfoVO">
+		SELECT wishlist.fno, info.image, fname, sdate, edate, fcontent
+		FROM
+		hoohee0331.wishlist
+		JOIN hoohee0331.info ON hoohee0331.wishlist.fno = hoohee0331.info.fno
+		WHERE
+		hoohee0331.wishlist.level = #{level}
+		<!-- 세션아이디가 있을 때 -->
+		<if test='id != "!"'>
+			AND wishlist.id = #{id}
+			<if test="flevel != -1">
+				AND hoohee0331.info.level = #{flevel}
+			</if>
+		</if>
+		LIMIT #{pagenum},#{contentnum}
+	</select>
+	<!-- 찜목록확인 -->
+	<select id="wishcheck" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(*) FROM hoohee0331.wishlist where id=#{id} and fno=#{fno} and
+		level=13;
+	</select>
+	<delete id="wishdelete" parameterType="java.util.Map">
+		DELETE FROM hoohee0331.wishlist WHERE id = #{id} and fno=#{fno} and level=13;
+	</delete>
+	<insert id="wishinsert" parameterType="java.util.Map">
+		INSERT INTO hoohee0331.wishlist (id, fno, level) VALUES (#{id}, #{fno}, 13);
+	</insert>
+	<!-- 좋아요 카운트 -->
+	<select id="countlove" parameterType="int" resultType="int">
+		select
+		count(*) from wishlist where fno = #{fno} and level =12;
+	</select>
+	<!-- 좋아요 삽입 -->
+	<insert id="insertlove" parameterType="java.util.Map">
+		INSERT INTO hoohee0331.wishlist (id, fno, level) VALUES (#{id}, #{fno}, 12);
+	</insert>
+	<!-- 좋아요 취소 -->
+	<delete id="deletelove" parameterType="java.util.Map">
+		DELETE FROM hoohee0331.wishlist WHERE id = #{id} and fno=#{fno} and level=12;
+	</delete>
+	<!-- 좋아요 체크 -->
+	<select id="checklove" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(*) FROM hoohee0331.wishlist where id=#{id} and fno=#{fno} and
+		level=12;
+	</select>
+	<!-- 축제찾는팝업 페이징을 위한 갯수세기 -->
+	<select id="popupCultureCnt" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(fno)
+		FROM hoohee0331.info
+		<choose>
+			<when test='type != -1'>
+				WHERE level = #{type} AND fname LIKE CONCAT('%',
+				#{value}, '%')
+			</when>
+			<when test='type == -1 and value != "!null"'>
+				WHERE fname LIKE CONCAT('%', #{value}, '%')
+			</when>
+		</choose>
+	</select>
+	<!-- 축제찾는팝업 리스트 -->
+	<select id="popupCulture" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.InfoVO">
+		<!-- 주소는 구까지(두번째 공백 전까지) -->
+		SELECT fno, level, fname, SUBSTRING_INDEX(location_1, ' ', 2) as
+		location_1
+		FROM hoohee0331.info
+		<choose>
+			<when test='type != -1'>
+				WHERE level = #{type} AND fname LIKE CONCAT('%',
+				#{value}, '%')
+			</when>
+			<when test='type == -1 and value != "!null"'>
+				WHERE fname LIKE CONCAT('%', #{value}, '%')
+			</when>
+		</choose>
+		ORDER BY fno ASC
+		LIMIT #{pagenum},#{contentnum}
+	</select>
+	
+	<!-- 좋아요 순 -->
+	<select id="orderlove" parameterType="java.util.Map" resultType="com.laonmoa.member.VO.InfoVO">
+		select info.fno,info.level,info.fname,info.sdate,info.edate,info.location_1,
+		info.location_2,info.image,info.gps,info.kind,info.tel,info.homepage,
+		info.host, wlist.level,count(wlist.level=12) as love
+		FROM info info
+		LEFT JOIN wishlist wlist
+		On info.fno = wlist.fno
+		where info.level = #{level} 
+		group by info.fno
+		union
+		select info.fno,info.level,info.fname,info.sdate,info.edate,info.location_1,
+		info.location_2,info.image,info.gps,info.kind,info.tel,info.homepage,
+		info.host, wlist.level,count(wlist.level=12) as love
+		from info info
+		right outer join wishlist wlist on info.fno=wlist.fno
+		where info.level = #{level}
+		group by info.fno
+		order by love desc
+		limit #{pagenum},#{contentnum}
+	</select>
+	 <!-- 지역별 띄워주기 -->
+	<select id ="locationselect" parameterType="java.util.Map" resultType="com.laonmoa.member.VO.InfoVO">
+	SELECT * FROM info where location_1 LIKE CONCAT(#{value},'%') and level=#{level} limit
+		#{pagenum},#{contentnum}
+	</select> 
+	
+	<!-- 지역 카운트 -->
+	<select id ="locationcount" parameterType="java.util.Map" resultType="String">
+	SELECT count(*) FROM info where location_1 LIKE CONCAT('%',#{value},'%') and level=#{level};
+	</select>
+	
+	<!-- 미로그인시 인기축제보여주기 -->
+	<select id="bestCultureList" resultType="com.laonmoa.member.VO.InfoVO">
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE (SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 7
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1)
+		UNION
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE (SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 8
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1)
+		UNION
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE (SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 9
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1)
+		UNION
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE (SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 10
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1)
+		UNION
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE (SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 15
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1);
+	</select>
+	<!-- 로그인시 지역위주 인기축제 보여주기 -->
+	<select id="locationBestCultureList" parameterType="String" resultType="com.laonmoa.member.VO.InfoVO">
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE wishlist.level = 12 AND 
+		        (SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 7
+		         AND (SELECT LEFT(address_1, 2) FROM hoohee0331.member WHERE id = #{id})
+                = (SELECT LEFT(location_1, 2) FROM hoohee0331.info WHERE info.fno = wishlist.fno)
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1)
+		UNION
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE wishlist.level = 12 AND
+		        (SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 8
+		        AND (SELECT LEFT(address_1, 2) FROM hoohee0331.member WHERE id = #{id})
+                = (SELECT LEFT(location_1, 2) FROM hoohee0331.info WHERE info.fno = wishlist.fno)
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1)
+		UNION
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE wishlist.level = 12 AND 
+		        (SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 9
+		        AND (SELECT LEFT(address_1, 2) FROM hoohee0331.member WHERE id = #{id})
+                = (SELECT LEFT(location_1, 2) FROM hoohee0331.info WHERE info.fno = wishlist.fno)
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1)
+		UNION
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE wishlist.level = 12 AND 
+				(SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 10
+				AND (SELECT LEFT(address_1, 2) FROM hoohee0331.member WHERE id = #{id})
+                = (SELECT LEFT(location_1, 2) FROM hoohee0331.info WHERE info.fno = wishlist.fno)
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1)
+		UNION
+		SELECT fno, level, fname, sdate, edate, SUBSTRING_INDEX(location_1, ' ', 2) as location_1, fcontent, image
+				FROM hoohee0331.info 
+				WHERE 
+		        info.fno = (SELECT fno
+		        FROM hoohee0331.wishlist
+		        WHERE wishlist.level = 12 AND 
+		        (SELECT hoohee0331.info.level FROM hoohee0331.info WHERE info.fno = wishlist.fno) = 15
+		        AND (SELECT LEFT(address_1, 2) FROM hoohee0331.member WHERE id = #{id})
+                = (SELECT LEFT(location_1, 2) FROM hoohee0331.info WHERE info.fno = wishlist.fno)
+		        GROUP BY wishlist.fno
+		        ORDER BY COUNT(wishlist.fno) DESC LIMIT 1);
+	</select>
+	<!-- 진행별 -->
+	<select id ="startfestival" parameterType="java.util.Map" resultType="com.laonmoa.member.VO.InfoVO">
+		SELECT * FROM hoohee0331.info where 
+		<![CDATA[ date(now())>=date(sdate) ]]>
+		<![CDATA[ and date(now())<=date(edate)]]>
+		and level = #{level}
+		ORDER BY sdate desc
+		 LIMIT #{pagenum},#{contentnum};
+	</select> 
+	<!-- 진행별 카운트 -->
+	<select id ="startfestivalcount" parameterType="int" resultType="String">
+		SELECT count(*) FROM hoohee0331.info where
+		 <![CDATA[ date(now())>=date(sdate) ]]>
+		<![CDATA[ and date(now())<=date(edate)]]>
+		 and level = #{level}
+	</select>
+	<!-- 예정 -->
+	<select id ="schedule" parameterType="java.util.Map" resultType="com.laonmoa.member.VO.InfoVO">
+		SELECT * FROM hoohee0331.info where 
+		<![CDATA[ date(now())<date(sdate) ]]>
+		<![CDATA[ and date(now())<date(edate)]]>
+		and level = #{level}
+		ORDER BY sdate desc
+		 LIMIT #{pagenum},#{contentnum};
+	</select>
+	<!-- 예정 카운트 -->
+	<select id="schedulecount" parameterType="int" resultType="String">
+		SELECT count(*) FROM hoohee0331.info where
+		 <![CDATA[ date(now())<date(sdate) ]]>
+		<![CDATA[ and date(now())<date(edate)]]>
+		 and level = #{level}
+	</select>
+
+	<!-- 마감 -->
+	<select id ="endfestival" parameterType="java.util.Map" resultType="com.laonmoa.member.VO.InfoVO">
+		SELECT * FROM hoohee0331.info where 
+		<![CDATA[ date(now())>date(edate) ]]>
+		and level = #{level}
+		ORDER BY sdate desc
+		 LIMIT #{pagenum},#{contentnum};
+	</select>
+	<!-- 마감 카운트 -->
+	<select id="endfestivalcount" parameterType="int" resultType="String">
+		SELECT count(*) FROM hoohee0331.info where
+		 <![CDATA[ date(now())>date(edate) ]]>
+		 and level = #{level}
+	</select>
+	
+</mapper>

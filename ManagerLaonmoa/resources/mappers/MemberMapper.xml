@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Member">
+	<!-- 관리자 인원 카운트 -->
+	<select id = "admincnt" resultType="int">
+		select count(id) from hoohee0331.member where level = 1
+	</select>
+	
+	<!-- 관리자 리스트 -->
+	<select id="adminlist" resultType="com.laon.moa.VO.MemberVO">
+		select * from hoohee0331.member where level = 1 limit #{pagenum},#{contentnum}
+	</select>
+	
+	<!-- 일반회원 카운트 -->
+	<select id="membercnt" resultType="int">
+		select count(id) from hoohee0331.member where level = 11 
+	</select>
+	
+	<!-- 일반회원 리스트 -->
+	<select id="memberlist" parameterType="java.util.Map"
+	resultType="com.laon.moa.VO.MemberVO">
+		select * from hoohee0331.member where level = 11
+		<choose>
+			<when test='max == "1"'>
+				order by warcnt desc
+			</when>
+			<when test='max == "0"'>
+				order by warcnt asc
+			</when>
+		</choose>
+		limit #{pagenum}, #{contentnum}
+	</select>
+	
+	<!-- 일반회원 검색 카운트 -->
+	<select id="searchcnt" resultType="int">
+		select count(id) from hoohee0331.member where level = 11 and secession = 0
+		<choose>
+			<when test='searchmember == "searchall"'>
+				and (id like CONCAT('%',#{keyword},'%') or
+				name like CONCAT('%',#{keyword},'%') or
+				address_1 like CONCAT('%',#{keyword},'%'))
+			</when>
+			<when test='searchmember == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='searchmember == "searchname"'>
+				and name like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='searchmember == searchaddress'>
+				and address_1 like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+	</select>
+	
+	<!-- 일반회원 검색 -->
+	<select id = "search" parameterType="java.util.Map" resultType="com.laon.moa.VO.MemberVO">
+		select * from hoohee0331.member where level = 11 and secession = 0
+		<choose>
+			<when test='searchmember == "searchall"'>
+				and (id like CONCAT('%',#{keyword},'%') or
+				name like CONCAT('%',#{keyword},'%') or
+				address_1 like CONCAT('%',#{keyword},'%'))
+			</when>
+			<when test='searchmember == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='searchmember == "searchname"'>
+				and name like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='searchmember == searchaddress'>
+				and address_1 like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+		<choose>
+			<when test='max == "1"'>
+				order by warcnt desc
+			</when>
+			<when test='max == "0"'>
+				order by warcnt asc
+			</when>
+		</choose>
+		limit #{pagenum},#{contentnum}
+	</select>
+	
+	<!-- 회원정보 상세보기 -->
+	<select id="memberdetail" parameterType="java.util.Map"
+		resultType="com.laon.moa.VO.MemberVO">
+		select * from hoohee0331.member where id = #{id} and level = #{level}
+	</select>
+
+	<!-- 회원정보 삭제 -->
+	<update id="delete" parameterType="com.laon.moa.VO.MemberVO">
+		update hoohee0331.member set secession =
+		1 where id=#{id}
+	</update>
+
+	<!-- 비밀번호 변경 -->
+	<update id="repass" parameterType="java.util.Map">
+		update hoohee0331.member set password = #{password} where id = #{id}
+	</update>
+	
+	<!-- 이메일 체크 -->
+	<select id="emailcheck" parameterType="String" resultType="int">
+		select count(id) from hoohee0331.member where email = #{email}
+	</select>
+
+	<!-- 회원정보 변경 -->
+	<update id="update" parameterType="java.util.Map">
+		update hoohee0331.member 
+		set name = #{name}, email = #{email}, tel = #{tel}, level = #{level}, secession =#{secession},
+		age = #{age}, address_1 = #{address_1}, address_2 = #{address_2}, zipcode = #{zipcode}
+		where id = #{id}
+	</update>
+
+	<!-- 블랙회원 카운트 -->
+	<select id="blackmembercnt" resultType="int">
+		select count(id) from hoohee0331.member where level = 2
+	</select>
+	
+	<!-- 블랙회원 리스트 -->
+	<select id="blackmemberlist" parameterType="java.util.Map"
+	resultType="com.laon.moa.VO.MemberVO">
+		select * from hoohee0331.member where level = 2
+		<choose>
+			<when test='max == "1"'>
+				order by warcnt desc
+			</when>
+			<when test='max == "0"'>
+				order by warcnt asc
+			</when>
+		</choose>
+		limit #{pagenum}, #{contentnum}
+	</select>
+	
+	<!-- 블랙회원 검색 카운트 -->
+	<select id="blacksearchcnt" resultType="int" parameterType="java.util.Map">
+		select count(id) from hoohee0331.member where level = 2 and secession = 0
+		<choose>
+			<when test='searchmember == "searchall"'>
+				and (id like CONCAT('%',#{keyword},'%') or
+				name like CONCAT('%',#{keyword},'%') or
+				address_1 like CONCAT('%',#{keyword},'%'))
+			</when>
+			<when test='searchmember == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='searchmember == "searchname"'>
+				and name like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='searchmember == searchaddress'>
+				and address_1 like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+	</select>
+	
+	<!-- 블랙회원 검색 -->
+	<select id = "blacksearch" parameterType="java.util.Map" resultType="com.laon.moa.VO.MemberVO">
+		select * from hoohee0331.member where level = 2 and secession = 0
+		<choose>
+			<when test='searchmember == "searchall"'>
+				and (id like CONCAT('%',#{keyword},'%') or
+				name like CONCAT('%',#{keyword},'%') or
+				address_1 like CONCAT('%',#{keyword},'%'))
+			</when>
+			<when test='searchmember == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='searchmember == "searchname"'>
+				and name like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='searchmember == searchaddress'>
+				and address_1 like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+		<choose>
+			<when test='max == "1"'>
+				order by warcnt desc
+			</when>
+			<when test='max == "0"'>
+				order by warcnt asc
+			</when>
+		</choose>
+		limit #{pagenum},#{contentnum}
+	</select>
+	<!-- 멤버 페이징 -->
+	<!-- 
+	<select id="listPage" parameterType="hashMap"
+		resultType="com.laon.moa.VO.MemberVO">
+		<choose>
+			<when test="max == 1">
+				select * from member where (level = 11) order by warcnt desc limit
+				#{displayPost}, #{postNum}
+			</when>
+			<when test="max == 0">
+				select * from member where (level = 11) order by warcnt asc limit
+				#{displayPost}, #{postNum}
+			</when>
+		</choose>
+	</select>
+	  -->
+
+	<!-- 로그인을 위한 SQL -->
+	<select id="login" parameterType="java.util.Map"
+		resultType="String">
+		SELECT id FROM hoohee0331.member WHERE id = #{id } AND password = #{password }
+		AND level = 1
+	</select>
+	<!-- 사용중인 회원리스트 수 -->
+	<select id="uselistCnt" parameterType="java.util.Map" resultType="int">
+		SELECT count(id)
+		FROM hoohee0331.member
+		WHERE secession = 0
+		<if test='value != "null!"'>
+			AND id LIKE CONCAT('%', #{value}, '%')
+		</if>
+	</select>
+	<!-- 사용중인 회원리스트 -->
+	<select id="uselist" parameterType="java.util.Map" resultType="com.laon.moa.VO.MemberVO">
+		SELECT id, name, level 
+		FROM hoohee0331.member 
+		WHERE secession = 0
+		<if test='value != "null!"'>
+			AND id LIKE CONCAT('%', #{value}, '%')
+		</if>		
+		LIMIT #{pagenum}, #{contentnum}
+	</select>
+</mapper>

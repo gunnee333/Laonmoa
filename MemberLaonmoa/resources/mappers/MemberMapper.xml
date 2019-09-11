@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Member">
+	<!-- 임시비밀 번호 발송 -->
+	<update id="newPassword" parameterType="java.util.Map" > 
+	    UPDATE hoohee0331.member 
+		SET password = #{password}
+		WHERE email = #{email} and id = #{id}
+	</update>
+	<!-- 회원가입 -->
+	<insert id="join" parameterType="com.laonmoa.member.VO.MemberVO">
+		INSERT INTO hoohee0331.member
+		VALUES (LOWER(#{id}), 11, #{password}, #{name}, #{email}
+		, #{tel}, #{address_1}, #{address_2}, #{zipcode}, #{age}, 0, 0, null);
+	</insert>
+	<!-- 이름 확인 -->
+	<select id="nameCheck" parameterType="String" resultType="int">
+		SELECT
+		COUNT(*) FROM hoohee0331.member
+		WHERE name = #{name}
+	</select>
+	<!--번호 확인 -->
+	<select id="telCheck" parameterType="String" resultType="int">
+		SELECT
+		COUNT(*) FROM hoohee0331.member
+		WHERE tel = #{tel}
+	</select>
+	<!-- 아이디 확인 -->
+	<select id="idCheck" parameterType="String" resultType="int">
+		SELECT
+		COUNT(*) FROM hoohee0331.member
+		WHERE id = #{id}
+	</select>
+	<!-- 아이디를 찾아보자 -->
+	<select id="findingId" parameterType="java.util.Map"
+		resultType="String">
+		SELECT id FROM hoohee0331.member
+		WHERE name=#{name} and tel = #{tel}
+	</select>
+	<!-- 비번을 찾아보자 -->
+	<select id="findingPassword" parameterType="java.util.Map"
+		resultType="String">
+		SELECT name 
+		FROM hoohee0331.member 
+		WHERE id=#{id} and email = #{email}
+	</select>
+
+	<!-- 이메일 확인 -->
+	<select id="emailcheck" parameterType="String" resultType="int">
+		SELECT COUNT(*) 
+		FROM hoohee0331.member 
+		WHERE email = #{email}
+	</select>
+	<!-- 로그인 -->
+	<select id="login" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.MemberVO">
+		SELECT id, name
+		FROM hoohee0331.member
+		WHERE id = #{id} AND password = #{password} AND secession = 0
+	</select>
+	<!-- 마지막 로그인한 시간 업데이트 -->
+	<update id="lastLoginTime" parameterType="String">
+		UPDATE hoohee0331.member
+		SET lastlogintime = now()
+		WHERE id = #{id}
+	</update>
+	<!-- 내정보보기 -->
+	<select id="mypage" parameterType="String"
+		resultType="com.laonmoa.member.VO.MemberVO">
+		SELECT id, name, tel, email, address_1, address_2, age, zipcode
+		FROM hoohee0331.member
+		WHERE id = #{id}
+	</select>
+	<!-- 내정보수정 -->
+	<update id="update" parameterType="com.laonmoa.member.VO.MemberVO">
+		UPDATE hoohee0331.member
+		SET name = #{name}, age = #{age}, tel = #{tel}, email = #{email},
+		zipcode = #{zipcode}, address_1 = #{address_1}, address_2 = #{address_2}
+		WHERE id = #{id}
+	</update>
+	<!-- 회원탈퇴 -->
+	<update id="memberout" parameterType="java.util.Map">
+		UPDATE hoohee0331.member
+		SET secession = 1
+		WHERE id = #{id} AND password = #{password}
+	</update>
+	<!-- 페이징을 위한 내게시글 수 세기 -->
+	<select id="myBoardCnt" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(bnum)
+		FROM hoohee0331.board
+		WHERE id = #{id} AND del = 0
+		<!-- 전체보기가 아닐 시 level 선택 -->
+		<if test="level != 0">
+			AND level = #{level}
+		</if>
+		<!-- 검색조건있을시 -->
+		<if test="type != 'null'">
+			<choose>
+				<when test="type == 'title'">
+					AND title LIKE CONCAT('%',#{value},'%')
+				</when>
+				<when test="type == 'content'">
+					AND content LIKE CONCAT('%',#{value},'%')
+				</when>
+			</choose>
+		</if>
+	</select>
+	<!-- 내 게시글리스트 -->
+	<select id="myBoard" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.BoardVO">
+		SELECT bnum, title, id, date, hit, level
+		FROM hoohee0331.board
+		WHERE id = #{id} AND del = 0
+		<!-- 전체보기가 아닐 시 level 선택 -->
+		<if test="level != 0">
+			AND level = #{level}
+		</if>
+		<!-- 검색조건있을시 -->
+		<if test="type != 'null'">
+			<choose>
+				<when test="type == 'title'">
+					AND title LIKE CONCAT('%',#{value},'%')
+				</when>
+				<when test="type == 'content'">
+					AND content LIKE CONCAT('%',#{value},'%')
+				</when>
+			</choose>
+		</if>
+		ORDER BY date desc
+		LIMIT #{pagenum},#{contentnum}
+	</select>
+	<!-- 비밀번호 수정 -->
+	<update id="pwupdate" parameterType="java.util.Map">
+		UPDATE hoohee0331.member
+		SET password = #{newpassword}
+		WHERE id = #{id} AND password = #{password}
+	</update>
+	<!-- 페이징을 위한 쪽지갯수세기 -->
+	<select id="notecount" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(mnum)
+		FROM hoohee0331.message
+		WHERE
+		<choose>
+			<!-- 받은쪽지 -->
+			<when test="num == 0">
+				recid = #{id}
+			</when>
+			<!-- 보낸쪽지 -->
+			<when test="num == 1">
+				sendid = #{id}
+			</when>
+		</choose>
+		<if test="ifread != -1">
+			AND ifread = #{ifread}
+		</if>
+		<if test="searchType != 'null'">
+			<choose>
+				<!-- 제목으로 검색 -->
+				<when test="searchType == 'mtitle'">
+					AND mtitle LIKE CONCAT('%',#{searchValue},'%')
+				</when>
+				<!-- 제목+내용으로 검색 -->
+				<when test="searchType == 'titleAndContent'">
+					AND (mtitle LIKE CONCAT('%',#{searchValue},'%')
+					OR mcontent LIKE CONCAT('%',#{searchValue},'%'))
+				</when>
+				<!-- 발송인으로 검색 -->
+				<when test="searchType == 'sendid'">
+					AND sendid LIKE CONCAT('%',#{searchValue},'%')
+				</when>
+				<!-- 수신인으로 검색 -->
+				<when test="searchType == 'recid'">
+					AND recid LIKE CONCAT('%',#{searchValue},'%')
+				</when>
+			</choose>
+		</if>
+	</select>
+	<!-- 쪽지리스트 -->
+	<select id="noteLsit" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.MessageVO">
+		SELECT mnum, sendid, recid, mtitle, date, ifread
+		FROM hoohee0331.message
+		WHERE
+		<choose>
+			<!-- 받은쪽지 -->
+			<when test="num == 0">
+				recid = #{id}
+			</when>
+			<!-- 보낸쪽지 -->
+			<when test="num == 1">
+				sendid = #{id}
+			</when>
+		</choose>
+		<if test="ifread != -1">
+			AND ifread = #{ifread}
+		</if>
+		<if test="searchType != 'null'">
+			<choose>
+				<!-- 제목으로 검색 -->
+				<when test="searchType == 'mtitle'">
+					AND mtitle LIKE CONCAT('%',#{searchValue},'%')
+				</when>
+				<!-- 제목+내용으로 검색 -->
+				<when test="searchType == 'titleAndContent'">
+					AND (mtitle LIKE CONCAT('%',#{searchValue},'%')
+					OR mcontent LIKE CONCAT('%',#{searchValue},'%'))
+				</when>
+				<!-- 발송인으로 검색 -->
+				<when test="searchType == 'sendid'">
+					AND sendid LIKE CONCAT('%',#{searchValue},'%')
+				</when>
+				<!-- 수신인으로 검색 -->
+				<when test="searchType == 'recid'">
+					AND recid LIKE CONCAT('%',#{searchValue},'%')
+				</when>
+			</choose>
+		</if>
+		ORDER BY date desc
+		LIMIT #{pagenum},#{contentnum}
+	</select>
+	<!-- 쪽지보내기 -->
+	<insert id="noteSend" parameterType="com.laonmoa.member.VO.MessageVO">
+		INSERT INTO
+		hoohee0331.message (sendid, recid, mtitle, mcontent, date, ifread)
+		VALUES (#{sendid}, #{recid}, #{mtitle}, #{mcontent}, NOW(), 0)
+		<selectKey resultType="int" keyProperty="mnum" order="AFTER">
+			SELECT
+			LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<!-- 쪽지상세보기 -->
+	<select id="notedetail" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.MessageVO">
+		SELECT *
+		FROM hoohee0331.message
+		WHERE mnum = #{mnum}
+	</select>
+	<!-- 쪽지열람처리 -->
+	<update id="noteread" parameterType="com.laonmoa.member.VO.MessageVO">
+		UPDATE hoohee0331.message
+		SET ifread = 1
+		WHERE mnum = #{mnum} AND recid = #{recid}
+	</update>
+	<!-- 쪽지삭제 -->
+	<delete id="notedelete" parameterType="int">
+		DELETE FROM hoohee0331.message
+		WHERE mnum = #{mnum}
+	</delete>
+	<!-- 회원검색 페이징을 위한 회원갯수(본인제외) -->
+	<select id="memberSearchCnt" parameterType="java.util.Map"
+		resultType="int">
+		SELECT COUNT(id)
+		FROM hoohee0331.member
+		WHERE secession = 0
+		<if test="id != 'sessionIDisNULL'">
+			AND id != #{id}
+		</if>
+		<if test="type != 'null'">
+			<choose>
+				<when test="type == 'all'">
+					AND ((id LIKE CONCAT('%',#{value},'%'))
+					OR (name LIKE CONCAT('%',#{value},'%'))
+					OR (email LIKE CONCAT('%',#{value},'%')))
+				</when>
+				<when test="type == 'id'">
+					AND id LIKE CONCAT('%',#{value},'%')
+				</when>
+				<when test="type == 'name'">
+					AND name LIKE CONCAT('%',#{value},'%')
+				</when>
+				<when test="type == 'email'">
+					AND email LIKE CONCAT('%',#{value},'%')
+				</when>
+			</choose>
+		</if>
+	</select>
+	<!-- 회원검색 -->
+	<select id="searchMember" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.MemberVO">
+		SELECT id, name, email
+		FROM hoohee0331.member
+		WHERE secession = 0
+		<if test="id != 'sessionIDisNULL'">
+			AND id != #{id}
+		</if>
+		<if test="type != 'null'">
+			<choose>
+				<when test="type == 'all'">
+					AND ((id LIKE CONCAT('%',#{value},'%'))
+					OR (name LIKE CONCAT('%',#{value},'%'))
+					OR (email LIKE CONCAT('%',#{value},'%')))
+				</when>
+				<when test="type == 'id'">
+					AND id LIKE CONCAT('%',#{value},'%')
+				</when>
+				<when test="type == 'name'">
+					AND name LIKE CONCAT('%',#{value},'%')
+				</when>
+				<when test="type == 'email'">
+					AND email LIKE CONCAT('%',#{value},'%')
+				</when>
+			</choose>
+		</if>
+		ORDER BY id ASC
+		LIMIT #{pagenum},#{contentnum}
+	</select>
+	<!-- 안읽은 쪽지리스트 -->
+	<select id="noteCnt" parameterType="String" resultType="int">
+		SELECT count(mnum)
+		FROM hoohee0331.message
+		WHERE recid = #{id} AND ifread = 0
+	</select>
+</mapper>

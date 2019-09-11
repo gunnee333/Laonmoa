@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Info">
+	<!-- 문화정보 리스트 -->
+	<select id="infolist" resultType="com.laon.moa.VO.InfoVO"
+		parameterType="java.util.Map">
+		select * from info limit #{pagenum}, #{contentnum};
+	</select>
+	<!-- 카테고리별 보여주기 -->
+	<select id="festivalList" resultType="com.laon.moa.VO.InfoVO">
+		select * from info where
+		level=7 limit #{pagenum}, #{contentnum};
+	</select>
+	<select id="dramaList" resultType="com.laon.moa.VO.InfoVO">
+		select * from info where
+		level=8 limit #{pagenum}, #{contentnum};
+	</select>
+	<select id="musicalList" resultType="com.laon.moa.VO.InfoVO">
+		select * from info where
+		level=9 limit #{pagenum}, #{contentnum};
+	</select>
+	<select id="showList" resultType="com.laon.moa.VO.InfoVO">
+		select * from info where
+		level=10 limit #{pagenum}, #{contentnum};
+	</select>
+
+	<!-- 문화정보 추가 -->
+	<insert id="cultureInsert" parameterType="java.util.Map">
+		INSERT INTO info (level, fname, sdate, edate, location_1,
+		location_2,fcontent,gps,kind
+		<if test="image !=null">
+			,image
+		</if>
+		<if test="tel !=null">
+			,tel
+		</if>
+		<if test="homepage !=null">
+			,homepage
+		</if>
+		<if test="host !=null">
+			,host
+		</if>
+		)
+		VALUES (#{level}, #{fname}, #{sdate}, #{edate}, #{location_1},
+		#{location_2}, #{fcontent},#{gps},#{kind}
+		<if test="image != null">
+			,#{image}
+		</if>
+		<if test="tel !=null">
+			,#{tel}
+		</if>
+		<if test="homepage != null">
+			,#{homepage}
+		</if>
+		<if test="host != null">
+			,#{host}
+		</if>
+		);
+	</insert>
+
+	<!-- 문화정보 상세보기 -->
+	<select id="selectOne" parameterType="int"
+		resultType="com.laon.moa.VO.InfoVO">
+		SELECT * FROM hoohee0331.info WHERE fno = #{fno};
+	</select>
+
+	<!-- 문화정보 삭제 -->
+	<delete id="culturedelete" parameterType="int">
+		delete from
+		hoohee0331.info where fno = #{fno};
+	</delete>
+
+	<!-- 문화정보 수정 -->
+	<update id="cultureupdate" parameterType="java.util.Map">
+		UPDATE hoohee0331.info SET level = #{level}, fname = #{fname}, sdate = #{sdate},
+		edate = #{edate}, location_1 = #{location_1}, location_2 =
+		#{location_2},fcontent =#{fcontent},gps=#{gps},kind=#{kind},tel=#{tel},homepage=#{homepage},host=#{host}
+		<if test="image !=null">
+		,image=#{image}
+		</if>
+		
+		WHERE (fno = #{fno})
+	</update>
+	
+	<!-- 검색 -->
+	<select id="search" parameterType="java.util.Map"
+		resultType="com.laon.moa.VO.InfoVO">
+		SELECT * FROM hoohee0331.info WHERE
+		<choose>
+			<when test='type == "location"'>
+				location_1 LIKE #{value}
+			</when>
+			<when test='type == "culturename"'>
+				fname LIKE CONCAT('%',#{value},'%')
+			</when>
+		</choose>
+		limit #{pagenum}, #{contentnum};
+	</select>
+	<!-- 이미지 삭제 삭제 -->
+	<update id="image" parameterType="int">
+		UPDATE info SET image = null WHERE (fno = #{fno})
+	</update>
+	<!-- 등로된 문화 인원 구하기 -->
+	<select id="countinfo" resultType="int"
+		parameterType="java.util.Map">
+		select count(*) from hoohee0331.info
+		<if test="level != 0">
+			where level =#{level}
+		</if>
+		<if test="level == 0">
+			where level
+		</if>
+	</select>
+	<!-- 검색시 지역 카운트 -->
+	<select id="locationcount" parameterType="String"
+		resultType="int">
+		SELECT count(*) FROM hoohee0331.info where location_1 LIKE CONCAT(#{value},'%');
+	</select>
+	<!-- 검색시 문화 카운트 -->
+	<select id="culturenamecount" parameterType="String" resultType="int">
+		SELECT count(*) FROM hoohee0331.info where fname LIKE CONCAT('%',#{value},'%');
+	</select>
+</mapper>

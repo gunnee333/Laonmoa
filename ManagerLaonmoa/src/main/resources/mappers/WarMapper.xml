@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="War">
+	<!-- 신고리스트 전체 목록 -->
+	<select id="list" parameterType="java.util.Map" resultType="com.laon.moa.VO.WarVO">
+		SELECT wnum, whoid, warid, level, bnum, rnum, process, wcontent 
+		FROM hoohee0331.war 
+		WHERE wnum != -1 
+		<if test='type != "null"'>
+			<choose>
+				<when test='type == "wcontent"'>
+					AND wcontent LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test='type == "warid"'>
+					AND warid LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test='type == "whoid"'>
+					AND whoid LIKE CONCAT('%', #{value}, '%')
+				</when>
+			</choose>
+		</if>
+		<if test='level != -1'>
+			AND level = #{level}
+		</if>
+		<if test='process != -1'>
+			AND process = #{process}
+		</if>
+		ORDER BY wdate desc 
+  		LIMIT #{pagenum},#{contentnum}
+	</select>
+	<!-- 신고리스트 갯수세기 -->
+	<select id="warListCnt" parameterType="java.util.Map" resultType="int">
+		SELECT count(wnum) 
+		FROM hoohee0331.war 
+		WHERE wnum != -1 
+		<if test='type != "null"'>
+			<choose>
+				<when test='type == "wcontent"'>
+					AND wcontent LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test='type == "warid"'>
+					AND warid LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test='type == "whoid"'>
+					AND whoid LIKE CONCAT('%', #{value}, '%')
+				</when>
+			</choose>
+		</if>
+		<if test='level != -1'>
+			AND level = #{level}
+		</if>
+		<if test='process != -1'>
+			AND process = #{process}
+		</if>
+	</select>
+	<!-- 신고내역 상세보기 -->
+	<select id="selectOne" parameterType="int"
+		resultType="com.laon.moa.VO.WarVO">
+		SELECT * FROM hoohee0331.war WHERE wnum = #{wnum }
+	</select>
+	<!-- 신고내역 접수 -->
+	<update id="update" parameterType="int">
+		UPDATE hoohee0331.war SET process = 1 WHERE wnum = #{wnum }
+	</update>
+	<!-- member table의 신고횟수 늘려주기 -->
+	<update id="warcntUpdate" parameterType="String">
+		UPDATE hoohee0331.member 
+		SET warcnt = warcnt + 1 
+		WHERE id = #{warid}
+	</update>
+	<!-- 신고횟수 가져오기 -->
+	<select id="selectWarCnt" parameterType="String" resultType="int">
+		SELECT warcnt FROM hoohee0331.member
+		WHERE id = #{warid}
+	</select>
+	<!-- 신고횟수 3회 이상인 회원 블랙회원으로 변경 -->
+	<update id="blackMemberChange" parameterType="String">
+		UPDATE hoohee0331.member 
+		SET level = 2 
+		WHERE id = #{warid}
+	</update>
+	<!-- 신고내역 기각 -->
+	<delete id="delete" parameterType="int">
+		DELETE FROM hoohee0331.war WHERE wnum = #{wnum }
+	</delete>
+	<!-- 미처리신고갯수 -->
+	<select id="waralarm" resultType="int">
+		SELECT count(wnum)
+		FROM hoohee0331.war
+		WHERE process = 0
+	</select>
+</mapper>

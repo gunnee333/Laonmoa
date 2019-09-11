@@ -1,0 +1,144 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300);
+
+.tagcloud01 .tag_list li button {
+	padding: 5px 10px;
+	border-top-left-radius: 35px;
+	border-top-right-radius: 35px;
+	border-bottom-left-radius: 35px;
+	border-bottom-right-radius: 35px;
+}
+
+.tagcloud01 div {
+	width: 480px;
+	margin: 5em auto 2.5em;
+}
+
+.tagcloud01 div:first-child {
+	margin-top: 3em;
+}
+
+.tagcloud01 ul {
+	margin-top: 10px;
+	padding: 0;
+	list-style: none;
+}
+
+.tagcloud01 ul li {
+	display: inline-block;
+	padding: 0;
+	margin-inline-start: 0px;
+	margin-inline-end: 0px;
+	padding-inline-start: 20px;
+}
+
+.tagcloud01 ul li a {
+	display: inline-block;
+	margin-right: 0px;
+	height: 28px;
+	line-height: 28px;
+	text-align: center;
+	width: 60px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	font-size: 15px;
+	text-decoration: none;
+	-webkit-transition: .2s;
+	transition: .2s;
+}
+
+.tagcloud01 ul li a:hover {
+	background-color: #FF7B22;
+	border-radius: 30px;
+	text-align: center;
+	color: #fff;
+}
+
+.area_tagList {
+	width: 350px;
+	padding: 36px 0 20px;
+	background-color: #f7f7f7;
+	margin-left: 50px;
+}
+
+table, tr, td {
+	border-top: 2px solid #D3D3D3;
+	border-bottom: 2px solid #D3D3D3;
+}
+
+.festival_img {
+	width: 150px;
+	height: 100px;
+	margin: 10px 20px;
+}
+
+.space_content {
+	font-size: 13px;
+	max-width: 600px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.culture_th {
+	font-size: 20px;
+}
+
+#culture_th1 {
+	text-align: center;
+	width: 150px;
+}
+
+#culture_th2 {
+	text-align: right;
+}
+
+.culture_style {
+	border-left: 0.5px solid gray;
+	height: 15px;
+}
+
+table, tr, td {
+	border-top: 2px solid #D3D3D3;
+	border-bottom: 2px solid #D3D3D3;
+	border-bottom: none;
+}
+
+.festival_img {
+	width: 150px;
+	height: 100px;
+	margin: 10px 20px;
+}
+
+.space_content {
+	font-size: 13px;
+	max-width: 600px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.hashtag {
+	border: 1px solid red;
+	height: 500px;
+	width: 320px;
+}
+
+.pagination {
+	margin: 60px 350px;
+}
+
+.page-link {
+	display: block;
+	padding: .5rem .75rem;
+	margin-left: -1px;
+	line-height: 1.25;
+	color: #000;
+	background-color: #fff;
+	border: 1px solid #dee2e6;
+}
+
+.page-link:hover {
+	background-color: #FF7B22;
+	color: #fff;
+}

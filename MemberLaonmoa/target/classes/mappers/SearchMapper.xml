@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Search">
+	<!-- 검색 축제 수 -->
+	<select id="searchCount" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(fno)
+		FROM hoohee0331.info
+		WHERE fno != -1
+		<if test='month != "all"'>
+			 <![CDATA[ AND #{month} between month(sdate) AND month(edate) ]]>
+			 <![CDATA[ AND #{year} between year(sdate) AND year(edate) ]]>
+		</if>
+		<if test='keyword != "$$"'>
+			AND (fname LIKE CONCAT('%', #{keyword}, '%')
+			OR fcontent LIKE CONCAT('%', #{keyword}, '%'))
+		</if>
+		<if test="ftype != -1">
+			AND level = #{ftype}
+		</if>
+		<if test='city != "전체"'>
+			AND location_1 LIKE CONCAT(#{city}, '%')
+		</if>
+		<if test='sort == "-ing"'>
+			 <![CDATA[ AND now() between sdate AND edate ]]>
+		</if>
+	</select>
+	<!-- 검색 축제 리스트 -->
+	<select id="searchList" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.SearchVO">
+		select fno, fname, sdate, edate, fcontent, location_1, image, level,
+		(SELECT count(fno) FROM hoohee0331.wishlist
+		WHERE hoohee0331.info.fno = hoohee0331.wishlist.fno AND hoohee0331.wishlist.level =12) as good_count
+		from hoohee0331.info
+		where fno != -1
+		<if test='month != "all"'>
+			 <![CDATA[ AND #{month} between month(sdate) AND month(edate) ]]>
+			 <![CDATA[ AND #{year} between year(sdate) AND year(edate) ]]>
+		</if>
+		<if test='keyword != "$$"'>
+			AND (fname LIKE CONCAT('%', #{keyword}, '%')
+			OR fcontent LIKE CONCAT('%', #{keyword}, '%'))
+		</if>
+		<if test="ftype != -1">
+			AND level = #{ftype}
+		</if>
+		<if test='city != "전체"'>
+			AND location_1 LIKE CONCAT(#{city}, '%')
+		</if>
+		<choose>
+			<when test='sort == "-ing"'>
+				 <![CDATA[ AND now() between sdate AND edate ]]>
+			</when>
+			<when test='sort == "good"'>
+				order by good_count desc
+			</when>
+			<when test='sort == "new"'>
+				order by sdate desc
+			</when>
+			<otherwise>
+				order by info.fno desc
+			</otherwise>
+		</choose>
+		limit #{pagenum},#{contentnum}
+	</select>
+</mapper>
+  
+  
+  

@@ -1,0 +1,172 @@
+@charset "UTF-8";
+<style>
+input {
+	border: 1px solid #dedede;
+}
+textarea{
+	border: 1px solid #dedede;
+}
+
+.title_top {
+	margin-bottom: 20px;
+	margin-left: 50px;
+}
+.board_table {
+	width: 1000px;
+	margin-left: 10px;
+	border: 0.5px solid #dedede;
+}
+
+.title_style {
+	width: 1000px;
+	height: 35px;
+	padding-left: 30px;
+}
+
+.board_textarea {
+	width: 1000px;
+	height: 500px;
+	padding: 30px;
+}
+
+.laonmoabtn:not(:disabled):not(.disabled){
+	cursor:pointer;
+}
+.laonmoabtn {
+	background-color: #FF7B22;
+	color: #ffffff;
+	border-radius: 0;
+	letter-spacing: .05rem;
+	transition: .5s ease;
+}
+
+.laonmoabtn:hover {
+	background-color: #ffbb8e;
+	color: #ffffff;
+}
+
+.board_submit {
+	margin-left: 500px;
+	margin-top: 10px;
+}
+.board_cancle{
+	margin-left: 580px;
+	margin-top: 10px;
+}
+.submit_cancle{
+	display: inline-block;
+}
+.submit_btn{
+	margin-left: 500px;
+	margin-top: 10px;
+}
+.btn_list{
+	margin-left: 950px;
+	margin-bottom: 10px;
+}
+.btn_two{
+	margin-left: 450px;
+	margin-top: 10px;
+}
+.th_style{
+	text-align: center;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+.td_style{
+	border-top: 0.5px solid #f0f0f0;
+	height: 40px;
+}
+.td_style2{
+	border-bottom: 0.5px solid #f0f0f0;
+	height: 40px;
+}
+.td1_style{
+	padding-left: 30px;
+}
+.td2_style{
+	text-align: right;
+	padding-right: 50px;
+}
+#board_bnum{
+	
+}
+#list_title{
+	text-align: left !important;
+	padding-left: 30px;
+}
+.list_table{
+	border-top: 2px solid #343434;
+	border-bottom: 2px solid #343434;
+	width: 1000px;
+	text-align: center;
+	margin-left: 60px;
+	
+}
+#board_bnum {
+	width: 50px;
+}
+
+#board_type{
+	width: 100px;
+}
+
+#board_title {
+	width: 500px;
+}
+
+#board_id {
+	width: 100px;
+}
+
+#board_date {
+	width: 110px;
+}
+
+#board_hit {
+	width: 60px;
+}
+
+#board_del {
+	width: 80px;
+}
+.board_write {
+	margin-top: 10px;
+	margin-left: 980px;
+}
+.btn_margin{
+	margin-left: 800px;
+	margin-top: 10px;
+}
+.del_button{
+	margin: 0 auto;
+}
+.notice_kind{
+	text-align: right;
+	padding-right: 30px;
+}
+.dropdown_free{
+	margin-left: -800px;
+}
+.update_input{
+	width: 800px;
+	height: 35px;
+}
+.review_title{
+	width: 923px;
+}
+.festival_search{
+	width: 300px;
+}
+.review_list{
+	 margin-left: 930px; 
+	 margin-bottom: 10px;
+}
+.title_h3{
+	 margin-left: 400px; 
+	 margin-bottom: 20px;
+	 width:280px;
+	/* border: 1px solid red; */
+}
+
+</style>

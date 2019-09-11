@@ -1,0 +1,59 @@
+.table_style {
+	border-top: 2px solid #343434;
+	border-bottom: 2px solid #343434;
+	width: 900px;
+	text-align: center;
+	margin: 0 auto;
+}
+
+.th_style {
+	text-align: center;
+}
+
+#th_style1 {
+	width: 50px;
+}
+
+#th_style2 {
+	width: 500px;
+}
+
+#th_style3 {
+	width: 100px;
+}
+
+#th_style4 {
+	width: 110px;
+}
+
+#th_style5 {
+	width: 60px;
+}
+
+#th_style6 {
+	width: 80px;
+}
+
+#list_title {
+	text-align: left !important;
+	padding-left: 20px;
+}
+
+.free_h3 {
+	margin-left: 450px;
+}
+
+.dropdown_free {
+	margin-left: 60px;
+	margin-bottom: 10px;
+}
+.board_write{
+	margin-top: 10px;
+	margin-left: 870px;
+}
+.searchbutton {
+	width: 35px;
+	height: 35px;
+	background-color: #FF7B22;
+	border: none;
+}

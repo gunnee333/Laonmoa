@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="Reply">
+  <!-- 자유게시판 댓글 리스트 -->
+  	<select id="freeBoardReply" resultType="com.laonmoa.member.VO.ReplyVO" parameterType="int">
+  		select * from hoohee0331.reply where level = 5 and bnum = #{bnum} and del = 0 order by rnum desc
+  	</select>
+  <!-- 자유게시판 댓글 삭제 -->
+  	<update id="freeReplyDelete" parameterType="int">
+  		update hoohee0331.reply set del = 1 where rnum = #{rnum}
+  	</update>
+  	
+   <!-- 자유게시판 댓글 수정 -->
+   	<update id="freeReplyUpdate" parameterType="java.util.Map">
+   		update hoohee0331.reply set rcontent = #{rcontent} where rnum = #{rnum}
+   	</update>
+   	
+   	<!-- 자유게시판 댓글 쓰기 -->
+   	<insert id="freeReplyInsert" parameterType="java.util.Map">
+   		insert into hoohee0331.reply(level,id,bnum,rcontent,date,del) values(5,#{id},#{bnum},#{rcontent},now(),0) 
+   	</insert>
+   	
+   	<!--                                                          리뷰게시판                                                           -->
+   	<!-- 리뷰게시판 댓글 리스트 -->
+  	<select id="reviewBoardReply" resultType="java.util.Map" parameterType="int">
+  		select * from hoohee0331.reply where level = 6 and bnum = #{bnum} and del = 0 order by rnum desc
+  	</select>
+  <!-- 리뷰게시판 댓글 삭제 -->
+  	<update id="reviewReplyDelete" parameterType="int">
+  		update hoohee0331.reply set del = 1 where rnum = #{rnum}
+  	</update>
+  	
+   <!-- 리뷰게시판 댓글 수정 -->
+   	<update id="reviewReplyUpdate" parameterType="java.util.Map">
+   		update hoohee0331.reply set rcontent = #{rcontent} where rnum = #{rnum}
+   	</update>
+   	
+   	<!-- 리뷰게시판 댓글 쓰기 -->
+   	<insert id="reviewReplyInsert" parameterType="java.util.Map">
+   		insert into hoohee0331.reply (level,id,bnum,rcontent,date,del) values (6,#{id},#{bnum},#{rcontent},now(),0) 
+   	</insert>
+  </mapper>

@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Board">
+
+	<!-- 메인에 보여줄 베스트리뷰 -->
+	<select id="bestReviewList" parameterType="int"
+		resultType="com.laonmoa.member.VO.ReviewListVO">
+		SELECT board.bnum, board.id, board.fno, board.title, board.content,
+		info.image, info.fname, info.level, info.sdate, info.edate
+		FROM hoohee0331.board
+		INNER JOIN hoohee0331.info
+		ON hoohee0331.board.fno = hoohee0331.info.fno
+		WHERE board.date >= DATE_ADD(NOW(),INTERVAL -1 MONTH )
+		AND (SELECT member.level FROM hoohee0331.member WHERE member.id = board.id) = 11
+		ORDER BY hit desc
+		limit #{reviewCnt};
+	</select>
+
+	<!-- 자유게시판 게시글 수 -->
+	<select id="freecount" resultType="int">
+		select count(bnum) from hoohee0331.board where level = 3 and del = 0 and id
+		in(select id from hoohee0331.member where level != 1)
+	</select>
+
+	<!-- 자유게시판 리스트(공지사항) -->
+	<select id="freeBoardAdminList"
+		resultType="com.laonmoa.member.VO.BoardListVO">
+		select hoohee0331.board.*,(select count(rnum) from hoohee0331.reply where board.bnum = reply.bnum and del = 0) as replycnt
+		 from hoohee0331.board where del = 0 AND level = 3 and 
+		 id in(select id from hoohee0331.member where level = 1) order by bnum desc;
+	</select>
+
+	<!-- 자유게시판 리스트(회원용) -->
+	<select id="freeBoardList" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.BoardListVO">
+		select hoohee0331.board.*,(select count(rnum) from hoohee0331.reply where board.bnum = reply.bnum and del = 0) as replycnt
+		from hoohee0331.board where del = 0 AND level = 3 and 
+		id in(select id from hoohee0331.member where level = 11 or level = 2)
+		<choose>
+			<when test="hit == 'null'">
+				order by bnum desc
+			</when>
+			<when test="hit == 'hitdesc'">
+				order by hit desc
+			</when>
+			<when test="hit == 'hitasc'">
+				order by hit asc
+			</when>
+		</choose>
+		limit #{pagenum},#{contentnum}
+	</select>
+
+	<!-- 자유게시판 상세보기 -->
+	<select id="freeBoardDetail" parameterType="int"
+		resultType="com.laonmoa.member.VO.BoardVO">
+		select * from hoohee0331.board where bnum = #{bnum}
+	</select>
+
+	<!-- 자유게시글 조회수 증가 -->
+	<update id="freehitup" parameterType="java.util.Map">
+		update hoohee0331.board set hit = hit + 1 where bnum = #{bnum} AND id != #{id}
+	</update>
+
+	<!-- 자유게시판 글 쓰기 -->
+	<insert id="freeBoardInsert" parameterType="java.util.Map">
+		insert into hoohee0331.board(id,level,title,content,hit,date,del)
+		values(#{id},3,#{title},#{content},0,now(),0)
+		<!-- insert 후 실행 마지막 행(=방금 추가된 행)을 가지고 옴 -->
+		<selectKey resultType="int" keyProperty="bnum" order="AFTER">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+
+	<!-- 자유게시판 글 삭제 -->
+	<update id="freeBoardDelete" parameterType="java.util.Map">
+		update hoohee0331.board set del = 1 where id = #{id} AND bnum = #{bnum}
+	</update>
+
+	<!-- 자유게시판 수정페이지 들어가기 -->
+	<select id="freeBoardUpdatein" parameterType="int"
+		resultType="com.laonmoa.member.VO.BoardVO">
+		select * from hoohee0331.board where bnum = #{bnum}
+	</select>
+
+	<!-- 자유게시판 글 수정 -->
+	<update id="freeBoardUpdate" parameterType="java.util.Map">
+		update hoohee0331.board set title = #{title}, content = #{content} where bnum =
+		#{bnum}
+	</update>
+
+	<!-- 자유게시판 검색 카운트 -->
+	<select id="freeSearchcnt" resultType="int"
+		parameterType="java.util.Map">
+		select count(bnum) from hoohee0331.board where level = 3 and del = 0
+		<choose>
+			<when test="search == 'searchid'">
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test="search == 'searchtitle'">
+				and (title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%'))
+			</when>
+		</choose>
+	</select>
+
+	<!-- 자유게시판 검색 -->
+	<select id="freeSearch" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.BoardListVO">
+		select hoohee0331.board.*,(select count(rnum) from hoohee0331.reply where board.bnum = reply.bnum and del = 0) as replycnt 
+		from hoohee0331.board where level = 3 and del = 0
+		<choose>
+			<when test="search == 'searchid'">
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test="search == 'searchtitle'">
+				and (title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%'))
+			</when>
+		</choose>
+		<if test="hit != 'null'">
+			order by hit
+			<if test="hit == 'hitdesc'">
+				desc
+			</if>
+			<if test="hit == 'hitasc'">
+				asc
+			</if>
+			limit #{pagenum},#{contentnum}
+		</if>
+		<if test='hit == "null"'>
+			order by hit limit #{pagenum},#{contentnum}
+		</if>
+	</select>
+	<!-- 리뷰게시판 -->
+	<!-- 리뷰게시판 게시글 수 -->
+	<select id="reviewcount" resultType="int" parameterType="java.util.Map">
+		select count(bnum) from hoohee0331.board where level = 4 and del = 0 and id
+		in(select id from hoohee0331.member where level != 1)
+		<choose>
+			<when test='eventkinds == "nullkind"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) != ""
+			</when>
+			<when test='eventkinds == "7"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) = 7
+			</when>
+			<when test='eventkinds == "8"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) = 8
+			</when>
+			<when test='eventkinds == "9"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) = 9
+			</when>
+			<when test='eventkinds == "10"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) = 10
+			</when>
+		</choose>
+	</select>
+
+	<!-- 리뷰게시판 리스트(공지사항) -->
+	<select id="reviewBoardAdminList"
+		resultType="com.laonmoa.member.VO.BoardListVO">
+		select hoohee0331.board.*,(select count(rnum) from hoohee0331.reply where board.bnum = reply.bnum and del = 0) as replycnt
+		from hoohee0331.board where del = 0 AND level = 4 and 
+		id in(select id from hoohee0331.member where level = 1) order by bnum desc
+	</select>
+
+	<!-- 리뷰게시판 리스트(회원용) -->
+	<select id="reviewBoardList" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.BoardListVO">
+		select hoohee0331.board.*,hoohee0331.info.fname,hoohee0331.info.level as flevel,(select count(rnum) from hoohee0331.reply where board.bnum = reply.bnum and del = 0) as replycnt
+		from hoohee0331.board inner join hoohee0331.info on hoohee0331.board.fno =
+		hoohee0331.info.fno
+		where hoohee0331.board.del = 0 AND hoohee0331.board.level = 4 and id in(select id
+		from hoohee0331.member where level = 11 or level = 2)
+		<choose>
+			<when test='eventkinds == "nullkind"'>
+				and hoohee0331.info.level != ""
+			</when>
+			<when test='eventkinds == "7"'>
+				and hoohee0331.info.level = 7
+			</when>
+			<when test='eventkinds == "8"'>
+				and hoohee0331.info.level = 8
+			</when>
+			<when test='eventkinds == "9"'>
+				and hoohee0331.info.level = 9
+			</when>
+			<when test='eventkinds == "10"'>
+				and hoohee0331.info.level = 10
+			</when>
+		</choose>
+		<choose>
+			<when test="hit == 'null'">
+				order by bnum desc
+			</when>
+			<when test="hit == 'hitdesc'">
+				order by hit desc
+			</when>
+			<when test="hit == 'hitasc'">
+				order by hit asc
+			</when>
+		</choose>
+		limit #{pagenum},#{contentnum}
+	</select>
+
+	<!-- 리뷰게시판 글 쓰기 -->
+	<insert id="reviewBoardInsert" parameterType="java.util.Map">
+		<choose>
+			<when test='fno == "0"'>
+			insert into hoohee0331.board(id,level,title,content,hit,date,del)
+			values(#{id},4,#{title},#{content},0,now(),0)
+			</when>
+			<otherwise>
+			insert into hoohee0331.board(id,level,fno,title,content,hit,date,del)
+			values(#{id},4,#{fno},#{title},#{content},0,now(),0)
+			</otherwise>
+		</choose>
+		<!-- insert 후 실행 마지막 행(=방금 추가된 행)을 가지고 옴 -->
+		<selectKey resultType="int" keyProperty="bnum" order="AFTER">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+		<!-- 축제찾는팝업 페이징을 위한 갯수세기 -->
+	<select id="popupCultureCnt" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(fno)
+		FROM hoohee0331.info 
+		<choose>
+			<!-- 행사분류를 선택하고 행사이름을 입력한 경우 -->
+			<when test='type != "-1" and value != "!null"'>
+				WHERE level = #{type} and fname LIKE CONCAT('%', #{value}, '%')
+			</when>
+			<!-- 전체검색에 키워드를 입력한 경우 -->
+			<when test='type == "-1" and value != "!null"'>
+				WHERE fname LIKE CONCAT('%', #{value}, '%')
+			</when>
+		</choose>
+	</select>
+	
+	<!-- 축제찾는팝업 리스트 -->
+	<select id="popupCulture" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.InfoVO">
+		<!-- 주소는 구까지(첫번째 공백 전까지) -->
+		SELECT fno, level, fname, SUBSTRING_INDEX(location_1, ' ', 1) as
+		location_1
+		FROM hoohee0331.info
+		<choose>
+			<!-- 행사분류를 선택하고 행사이름을 입력한 경우 -->
+			<when test='type != -1 and value != "!null"'>
+				WHERE level = #{type} AND fname LIKE CONCAT('%',#{value}, '%')
+			</when>
+			<!-- 전체검색에 키워드를 입력한 경우-->
+			<when test='type == -1 and value != "!null"'>
+				WHERE fname LIKE CONCAT('%', #{value}, '%')
+			</when>
+		</choose>
+		ORDER BY fno ASC
+		LIMIT #{pagenum},#{contentnum}
+	</select>
+	
+	<!-- 리뷰게시판 공지사항 상세보기 -->
+	<select id="reviewadmindetail" parameterType="int" resultType="com.laonmoa.member.VO.ReviewBoardVO">
+		select * from hoohee0331.board where bnum = #{bnum}
+	</select>
+
+	<!-- 리뷰게시판 회원 글 상세보기 -->
+	<select id="reviewBoardDetail" parameterType="int"
+		resultType="com.laonmoa.member.VO.ReviewBoardVO">
+		select hoohee0331.board.*,hoohee0331.info.fname,hoohee0331.info.level as flevel
+		from hoohee0331.board inner join hoohee0331.info on hoohee0331.board.fno =
+		hoohee0331.info.fno
+		where bnum = #{bnum}
+	</select>
+
+	<!-- 리뷰게시글 조회수 증가 -->
+	<update id="reviewhitup" parameterType="java.util.Map">
+		update hoohee0331.board set hit = hit + 1 where bnum = #{bnum} AND id != #{id}
+	</update>
+
+	<!-- 리뷰게시판 수정페이지 들어가기 -->
+	<select id="reviewBoardUpdatein" parameterType="int"
+		resultType="com.laonmoa.member.VO.BoardVO">
+		select * from hoohee0331.board where bnum = #{bnum}
+	</select>
+
+	<!-- 리뷰게시판 글 수정 -->
+	<update id="reviewBoardUpdate" parameterType="java.util.Map">
+		update hoohee0331.board set title = #{title}, content = #{content} where bnum =
+		#{bnum}
+	</update>
+
+	<!-- 리뷰게시판 글 삭제 -->
+	<update id="reviewBoardDelete" parameterType="java.util.Map">
+		update hoohee0331.board set del = 1 where id = #{id} AND bnum = #{bnum}
+	</update>
+
+	<!-- 리뷰게시판 검색 카운트 -->
+	<select id="reviewSearchcnt" resultType="int"
+		parameterType="java.util.Map">
+		select count(bnum) from board where del = 0 and level = 4 and id in(select id from member where level != 1)
+		<choose>
+			<when test='eventkinds == "nullkind"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) != ""
+			</when>
+			<when test='eventkinds == "7"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) = 7
+			</when>
+			<when test='eventkinds == "8"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) = 8
+			</when>
+			<when test='eventkinds == "9"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) = 9
+			</when>
+			<when test='eventkinds == "10"'>
+			and (select info.level from hoohee0331.info where board.fno = info.fno) = 10
+			</when>
+		</choose>
+		<choose>
+			<when test="search == 'searchid'">
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test="search == 'searchtitle'">
+				and (title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%'))
+			</when>
+		</choose>
+	</select>
+
+	<!-- 리뷰게시판 검색 -->
+	<select id="reviewSearch" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.BoardListVO">
+		select hoohee0331.board.*,hoohee0331.info.fname,hoohee0331.info.level as flevel,(select count(rnum) from hoohee0331.reply where board.bnum = reply.bnum and del = 0) as replycnt
+		from hoohee0331.board inner join hoohee0331.info on hoohee0331.board.fno =
+		hoohee0331.info.fno
+		where hoohee0331.board.del = 0 AND hoohee0331.board.level = 4 and id in(select id
+		from hoohee0331.member where level = 11 or level = 2)
+		<choose>
+			<when test='eventkinds == "nullkind"'>
+				and info.level != "" 
+			</when>
+			<when test='eventkinds == "7"'>
+				and info.level = 7
+			</when>
+			<when test='eventkinds == "8"'>
+				and info.level = 8
+			</when>
+			<when test='eventkinds == "9"'>
+				and info.level = 9
+			</when>
+			<when test='eventkinds == "10"'>
+				and info.level = 10
+			</when>
+		</choose>
+		<choose>
+			<when test="search == 'searchid'">
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test="search == 'searchtitle'">
+				and (title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%'))
+			</when>
+		</choose>
+		<if test='hit != "null"'>
+			order by hit
+			<if test="hit == 'hitdesc'">
+				desc
+			</if>
+			<if test="hit == 'hitasc'">
+				asc
+			</if>
+			limit #{pagenum},#{contentnum}
+		</if>
+		<if test='hit == "null"'>
+			order by hit limit #{pagenum},#{contentnum}
+		</if>
+	</select>
+
+	<!-- 신고하기 -->
+	<insert id="B_warning" parameterType="java.util.Map">
+		INSERT INTO hoohee0331.war
+		(warid, whoid, level, bnum, wcontent, process, wdate)
+		values
+		(#{warid},#{whoid},#{level},#{num},#{wcontent}, 0, NOW())
+	</insert>
+
+	<insert id="R_warning" parameterType="java.util.Map">
+		INSERT INTO hoohee0331.war
+		(warid, whoid, level, rnum, wcontent, process, wdate)
+		VALUES
+		(#{warid},#{whoid},#{level},#{num},#{wcontent}, 0, NOW())
+	</insert>
+
+	<select id="boardWar" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.BoardVO">
+		select id, title
+		from hoohee0331.board
+		where bnum = #{num}
+	</select>
+
+	<select id="replyWar" parameterType="java.util.Map"
+		resultType="com.laonmoa.member.VO.ReplyVO">
+		select id, rcontent
+		from hoohee0331.reply
+		where rnum = #{num}
+	</select>
+	
+	<!-- 블랙리스트 글쓰기 제한 -->
+	<select id = "blacklist" parameterType="String" resultType="int">
+		select level from hoohee0331.member where id = #{id}
+	</select>
+
+</mapper>

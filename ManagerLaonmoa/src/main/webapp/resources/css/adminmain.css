@@ -1,0 +1,64 @@
+<style>
+	*{
+		color: black;
+		font-size: 17px;
+		text-decoration: none;
+	}
+	.main {
+		/* width: 1500px; */
+		width: 100%;
+		margin: 0 auto;
+		display: flex;
+	}
+	.main_menu_in{
+		display: inline-block;
+		display: inline-flex;
+	}
+	.login_box{
+		border: 1px solid black;
+		width: 400px;
+		height: 200px;
+	}
+	.sub {
+		width: 1200px;
+		/* border: 1px solid red; */
+		padding: 20px;
+		padding-left: 100px;
+		display: inline-block;
+		/* margin-top: 50px;
+		margin-left: 320px; */
+		margin: 50px 0 80px 320px ; 
+	}
+	.header_edit{
+		height: 50px;
+		width: 1200px;
+		position: absolute;
+		left: 300px;
+		margin-top: 15px;
+	}
+	#main-menu{
+		margin-left: 0;
+	}
+	.main_img{
+		margin-left: 50px;
+	}
+	.log_in{
+		margin: 0 95px;
+		width: 120px; 
+		height: 50px;
+		margin-right: 3px;
+	}
+	.box_login{
+		width: 400px;
+		height: 500px;
+		border: 1px solid gray;
+		border-radius: 20px;
+		margin: 0 auto;
+		/* margin-top: 100px; */
+	}
+	.box_in{
+		width: 300px; 
+		margin: 0 auto;
+		margin-top: 60px;
+	}
+</style>

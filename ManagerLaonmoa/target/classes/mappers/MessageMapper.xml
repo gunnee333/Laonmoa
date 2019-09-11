@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Message">
+	<!-- 리스트보기 -->
+	<select id = "list" parameterType="java.util.Map" resultType="com.laon.moa.VO.MessageVO">
+		SELECT * 
+		FROM hoohee0331.message 
+		WHERE mnum != 0 
+		<if test='type != "null"'>
+			<choose>
+				<when test='type == "sendid"'>
+					AND sendid LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test='type == "recid"'>
+					AND recid LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test='type == "mtitle"'>
+					AND mtitle LIKE CONCAT('%', #{value}, '%')
+				</when>
+			</choose>
+		</if>
+		<if test='ifread != -1'>
+			AND ifread = #{ifread}
+		</if>
+		<if test='id != "!"'>
+			AND recid = #{id}
+		</if>
+		ORDER BY date desc 
+  		LIMIT #{pagenum},#{contentnum}
+	</select>
+	<!-- 리스트페이징 -->
+	<select id = "messageListCnt" parameterType="java.util.Map" resultType="int">
+		SELECT count(mnum) 
+		FROM hoohee0331.message 
+		WHERE mnum != 0 
+		<if test='type != "null"'>
+			<choose>
+				<when test='type == "sendid"'>
+					AND sendid LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test='type == "recid"'>
+					AND recid LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test='type == "mtitle"'>
+					AND mtitle LIKE CONCAT('%', #{value}, '%')
+				</when>
+			</choose>
+		</if>
+		<if test='ifread != -1'>
+			AND ifread = #{ifread}
+		</if>
+		<if test='id != "!"'>
+			AND recid = #{id}
+		</if>
+	</select>
+	<!-- 쪽지열람 -->
+	<update id="readok" parameterType="com.laon.moa.VO.MessageVO">
+		UPDATE hoohee0331.message SET ifread = 1 WHERE mnum = #{mnum }
+	</update>
+	<!-- 상세리스트보기 -->
+	<select id="detail" parameterType="int" resultType="com.laon.moa.VO.MessageVO">
+		SELECT * FROM hoohee0331.message WHERE mnum = #{mnum }
+	</select>
+	<!-- 쪽지삭제 -->
+	<delete id="del" parameterType="int">
+		DELETE FROM hoohee0331.message WHERE mnum = #{mnum }
+	</delete>
+	<!-- 열람여부로 조회 -->
+	<select id="listRead" parameterType="int" resultType="com.laon.moa.VO.MessageVO">
+		SELECT * FROM hoohee0331.message WHERE ifread = #{ifread }
+	</select>
+	<!-- 쪽지검색 -->
+	<select id="search" parameterType="int" resultType="com.laon.moa.VO.MessageVO">
+		SELECT * FROM hoohee0331.message WHERE
+			<choose>
+				<when test="type == 'sendid'.toString()">
+					sendid LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test="type == 'recid'.toString()">
+					recid LIKE CONCAT('%', #{value}, '%')
+				</when>
+				<when test="type == 'mtitle'.toString()">
+					mtitle LIKE CONCAT('%', #{value}, '%')
+				</when>
+			</choose>
+	</select>
+	<!-- 메시지 보내기 -->
+	<insert id="insert" parameterType="com.laon.moa.VO.MessageVO">
+        INSERT INTO hoohee0331.message (sendid, recid, mtitle, mcontent, date, ifread) 
+        VALUES (#{sendid }, #{recid }, #{mtitle }, #{mcontent }, NOW(), 0)
+		<selectKey resultType="int" keyProperty="mnum" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey> 
+	</insert>
+	<!-- 안읽은 쪽지갯수 -->
+	<select id="alarmCnt" parameterType="String" resultType="int">
+		SELECT count(mnum)
+		FROM hoohee0331.message
+		WHERE recid = #{id} AND ifread = 0
+	</select>
+</mapper>

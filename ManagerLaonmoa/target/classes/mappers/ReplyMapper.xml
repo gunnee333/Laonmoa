@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Reply">
+	<select id="replylist" parameterType="java.util.Map" resultType="com.laon.moa.VO.ReplyVO">
+		SELECT *
+		FROM hoohee0331.reply
+		WHERE (level = 5 OR level=6)
+		<choose>
+			<when test='type == "id"'>
+				AND id LIKE CONCAT('%', #{value}, '%')
+			</when>
+			<when test='type == "rcontent"'>
+				AND rcontent LIKE CONCAT('%', #{value}, '%')
+			</when>
+		</choose>
+		LIMIT #{pagenum},#{contentnum}
+	</select>
+	<!-- 댓글리스트 갯수 -->
+	<select id="replyListCnt" parameterType="java.util.Map" resultType="int">
+		SELECT count(rnum)
+		FROM hoohee0331.reply
+		WHERE (level = 5 OR level=6)
+		<choose>
+			<when test='type == "id"'>
+				AND id LIKE CONCAT('%', #{value}, '%')
+			</when>
+			<when test='type == "rcontent"'>
+				AND rcontent LIKE CONCAT('%', #{value}, '%')
+			</when>
+		</choose>
+	</select>
+	<!-- 댓글 하나 불러오기 -->
+	<select id="replyDetailOne" parameterType="int" resultType="com.laon.moa.VO.ReplyVO">
+		SELECT bnum, rcontent
+		FROM hoohee0331.reply
+		WHERE rnum = #{rnum}
+	</select>
+	<select id="selectOne" parameterType="java.lang.Integer"
+		resultType="com.laon.moa.VO.ReplyVO">
+		SELECT * FROM reply WHERE bnum = #{bnum }
+	</select>
+	<!-- 삭제처리 -->
+	<update id="update" parameterType="int">
+		UPDATE hoohee0331.reply SET del =
+		1 WHERE rnum = #{rnum }
+	</update>
+	<!-- 삭제처리 기각 -->
+	<delete id="delete" parameterType="int">
+		UPDATE hoohee0331.reply SET del =
+		0 WHERE rnum = #{rnum }
+	</delete>
+	<!-- 검색 -->
+	<select id="search" parameterType="java.util.Map"
+		resultType="com.laon.moa.VO.ReplyVO">
+		SELECT * FROM hoohee0331.reply WHERE
+		<choose>
+			<when test="type == 'id'.toString()">
+				id LIKE CONCAT('%', #{value}, '%')
+			</when>
+			<when test="type == 'rcontent'.toString()">
+				rcontent LIKE CONCAT('%', #{value}, '%')
+			</when>
+		</choose>
+	</select>
+		<!-- 게시물 총 갯수 구하기 -->
+	<select id="count" resultType="int">
+		select count(rnum) from hoohee0331.reply
+	</select>
+	<!-- 페이징 -->
+	<select id="listPage" parameterType="java.util.Map" resultType="com.laon.moa.VO.ReplyVO">
+		select * from hoohee0331.reply
+		order by level desc
+		limit #{displayPost}, #{postNum}
+	</select>
+</mapper>

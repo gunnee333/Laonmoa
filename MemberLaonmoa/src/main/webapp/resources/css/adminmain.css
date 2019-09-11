@@ -1,0 +1,41 @@
+<style>
+	*{
+		color: black;
+		font-size: 17px;
+		text-decoration: none;
+	}
+	.main {
+		position: flex;
+	}
+	
+	.sub {
+		border : 1px solid;
+		height: 800px;
+		width: 950px;
+		margin-top: -700px;
+		margin-left: 250px;
+	}
+	.header_edit{
+		height: 100px;
+		background-color: yellow;
+	}
+	
+	#main-menu{
+		margin-left: 0;
+	}
+	.main-menu{
+		background-color: #d3d3d3;
+		height: 700px;
+		width: 200px;
+	}
+	.main-menu ul{
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+	.main-menu li{
+		list-style: none;
+		padding-top: 5px;
+		padding-bottom: 5px;
+		margin-left: -20px;
+		}
+</style>

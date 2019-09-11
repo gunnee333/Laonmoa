@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardMapper">
+	<!-- 게시물작성 -->
+	<insert id="BoardInsert" parameterType="com.laon.moa.VO.BoardVO">
+		insert into
+		board (title, content, id, level, date, del, hit)
+		values
+		(#{title}, #{content}, #{id}, 3, now(), 0 , 0)
+		<selectKey resultType="int" keyProperty="bnum" order="AFTER">
+			SELECT
+			LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<!-- 게시물수정 -->
+	<update id="BoardChange" parameterType="com.laon.moa.VO.BoardVO">
+		update board
+		set
+		title =
+		#{title},
+		content = #{content}
+		where bnum = #{bnum}
+	</update>
+
+	<!-- 게시물삭제 -->
+	<update id="BoardDelete" parameterType="int">
+		update board
+		set del = 1
+		where bnum = #{bnum}
+	</update>
+
+	<!-- 게시물조회 -->
+	<select id="BoardDetail" parameterType="int"
+		resultType="com.laon.moa.VO.BoardVO">
+		select *
+		from board
+		where bnum = #{bnum}
+	</select>
+
+	<!-- 페이징 -->
+	<select id="freeBoardList" parameterType="java.util.Map"
+		resultType="com.laon.moa.VO.BoardVO">
+		select *
+		from board WHERE level = 3
+		<choose>
+			<when test="del != -1">
+				AND del = #{del }
+			</when>
+		</choose>
+		order by bnum desc
+		limit #{pagenum},#{contentnum}
+	</select>
+
+	<!-- 게시글 총 갯수 -->
+	<select id="freeBoardCount" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(bnum)
+		from board WHERE level = #{level }
+		<choose>
+			<when test="del != -1">
+				AND del = #{del }
+			</when>
+		</choose>
+	</select>
+	
+	<!-- 자유게시판 검색 카운트 -->
+	<select id="freeSearchcnt" resultType="int"
+		parameterType="java.util.Map">
+		select count(bnum) 
+		from hoohee0331.board where level = 3 and del = 0
+		<choose>
+			<when test='search == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='search == "searchtitlecontent"'>
+				and (title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%'))
+			</when>
+			<when test='search == "searchtitle"'>
+				and title like CONCAT('%',#{keyword},'%')
+			</when>
+				<when test='search == "searchcontent"'>
+				and content like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+	</select>
+
+	<!-- 자유게시판 검색 -->
+	<select id="freeSearch" parameterType="java.util.Map"
+		resultType="java.util.Map">
+		select hoohee0331.board.*
+		from hoohee0331.board where level = 3 and del = 0
+		<choose>
+			<when test='search == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='search == "searchtitlecontent"'>
+				and (title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%'))
+			</when>
+			<when test='search == "searchtitle"'>
+				and title like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+		order by bnum desc
+		limit #{pagenum},#{contentnum}
+	</select>
+
+	<!-- ===========================================리뷰게시판============================================= -->
+	<!-- 리뷰 작성 -->
+	<insert id="reviewInsert" parameterType="java.util.Map">
+		insert into hoohee0331.board(id,level,title,content,hit,date,del)
+		values(#{id},4,#{title},#{content},0,now(),0)
+		<!-- insert 후 실행 마지막 행(=방금 추가된 행)을 가지고 옴 -->
+		<selectKey resultType="int" keyProperty="bnum" order="AFTER">
+			select
+			last_insert_id()
+		</selectKey>
+	</insert>
+
+	<!-- 축제찾는팝업 페이징을 위한 갯수세기 -->
+	<select id="popupCultureCnt" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(fno)
+		FROM hoohee0331.info
+		WHERE fno != -1
+		<choose>
+			<when test='type != -1'>
+				AND level = #{type}
+				<if test='value != "!null"'>
+					AND fname LIKE CONCAT('%', #{value}, '%')
+				</if>
+			</when>
+			<when test='type == -1'>
+				<if test='value != "!null"'>
+					AND fname LIKE CONCAT('%', #{value}, '%')
+				</if>
+			</when>
+		</choose>
+	</select>
+
+	<!-- 축제찾는팝업 리스트 -->
+	<select id="popupCulture" parameterType="java.util.Map"
+		resultType="com.laon.moa.VO.InfoVO">
+		<!-- 주소는 구까지(첫번째 공백 전까지) -->
+		SELECT fno, level, fname, SUBSTRING_INDEX(location_1, ' ', 1) as
+		location_1
+		FROM hoohee0331.info
+		<choose>
+			<!-- 행사분류를 선택하고 행사이름을 입력한 경우 -->
+			<when test='type != -1 and value != "!null"'>
+				WHERE level = #{type} AND fname LIKE
+				CONCAT('%',#{value}, '%')
+			</when>
+			<!-- 전체검색에 키워드를 입력한 경우 -->
+			<when test='type == -1 and value != "!null"'>
+				WHERE fname LIKE CONCAT('%', #{value}, '%')
+			</when>
+		</choose>
+		ORDER BY fno ASC
+		LIMIT #{pagenum},#{contentnum}
+	</select>
+
+	<!-- 리뷰 수정하기 -->
+	<update id="reviewChange"
+		parameterType="com.laon.moa.VO.BoardVO">
+		update board
+		set
+		title = #{title},
+		content = #{content}
+		where bnum = #{bnum}
+	</update>
+
+	<!-- 리뷰 삭제 -->
+	<update id="reviewDelete" parameterType="int">
+		update board
+		set del = 1
+		where bnum = #{bnum}
+	</update>
+
+	<!-- 리뷰 상세보기 -->
+	<select id="reviewDetail" parameterType="int"
+		resultType="com.laon.moa.VO.ReviewBoardVO">
+		select *,
+		(SELECT fname FROM hoohee0331.info WHERE
+		hoohee0331.info.fno = hoohee0331.board.fno) as fname
+		from board
+		where bnum =
+		#{bnum}
+	</select>
+
+	<!-- 리뷰 목록/페이징 -->
+	<select id="reviewBoardList" parameterType="java.util.Map"
+		resultType="com.laon.moa.VO.ReviewBoardVO">
+		select *,(SELECT fname FROM hoohee0331.info WHERE hoohee0331.info.fno =
+		hoohee0331.board.fno) as fname
+		from board WHERE level = 4
+		<choose>
+			<when test="del != -1">
+				AND del = #{del }
+			</when>
+		</choose>
+		order by bnum desc
+		limit #{pagenum},#{contentnum}
+	</select>
+
+
+	<!-- 리뷰 갯수 구하기 -->
+	<select id="reviewBoardCount" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(bnum)
+		from board WHERE level = #{level }
+		<choose>
+			<when test="del != -1">
+				AND del = #{del }
+			</when>
+		</choose>
+	</select>
+	
+	<!-- 리뷰게시판 검색 카운트 -->
+	<select id="reviewSearchcnt" resultType="int"
+		parameterType="java.util.Map">
+		select count(bnum)
+		 from hoohee0331.board
+		 join hoohee0331.info on board.fno = info.fno
+		 where del = 0 and board.level = 4
+		<choose>
+			<when test='search == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='search == "searchtitlecontent"'>
+				and (title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%'))
+			</when>
+			<when test='search == "searchtitle"'>
+				and title like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='search == "searchcontent"'>
+				and content like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='search == "festivalname"'>
+				and fname like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+	</select>
+	
+	<!-- 리뷰게시판 검색 -->
+	<select id="reviewSearch" parameterType="java.util.Map"
+		resultType="java.util.Map">
+		select hoohee0331.board.*,fname
+		from hoohee0331.board 
+		join hoohee0331.info on board.fno = info.fno
+		where del = 0 and board.level = 4
+		<choose>
+			<when test='search == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='search == "searchtitlecontent"'>
+				and (title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%'))
+			</when>
+			<when test='search == "searchtitle"'>
+				and title like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='search == "festivalname"'>
+				and fname like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+		order by bnum desc
+		limit #{pagenum},#{contentnum}
+	</select>
+
+	<!-- ===========================================공지게시판============================================= -->
+
+	<!-- 공지 페이징 -->
+	<select id="noticeList" parameterType="java.util.Map"
+		resultType="com.laon.moa.VO.BoardVO">
+		SELECT * from hoohee0331.board 
+		WHERE id in(select id from hoohee0331.member where level = 1)
+		AND level = #{level }
+		<choose>
+			<when test="del != -1">
+				AND del = #{del }
+			</when>
+		</choose>
+		order by bnum desc
+		limit #{pagenum},#{contentnum}
+	</select>
+
+	<!-- 공지 게시글 총 갯수 -->
+	<select id="noticeCount" parameterType="java.util.Map"
+		resultType="int">
+		SELECT count(bnum)
+		FROM board WHERE level = #{level } and id
+		in(select id from hoohee0331.member where level = 1)
+	</select>
+
+	<!-- 공지 작성 -->
+	<insert id="NoticeInsert"
+		parameterType="com.laon.moa.VO.BoardVO">
+		insert into
+		board (title, content, id, level, date, del, hit)
+		values
+		(#{title}, #{content}, #{id}, #{level}, now(), 0 , 0)
+		<selectKey resultType="int" keyProperty="bnum" order="AFTER">
+			SELECT
+			LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<!-- 공지 수정 -->
+	<update id="NoticeChange"
+		parameterType="com.laon.moa.VO.BoardVO">
+		update board
+		set
+		title = #{title},
+		content = #{content}
+		where bnum = #{bnum}
+	</update>
+
+	<!-- 공지 삭제 -->
+	<update id="NoticeDelete" parameterType="int">
+		update board
+		set del = 1
+		where bnum = #{bnum}
+	</update>
+
+	<!-- 게시물조회 -->
+	<select id="NoticeDetail" parameterType="int"
+		resultType="com.laon.moa.VO.BoardVO">
+		select *
+		from board
+		where bnum = #{bnum}
+	</select>
+	
+	<!-- 공지게시판 검색 카운트 -->
+	<select id="noticeSearchcnt" resultType="int"
+		parameterType="java.util.Map">
+		select count(bnum) 
+		from hoohee0331.board 
+		where level = #{level } and del = 0 and id in(select id from hoohee0331.member where member.level = 1)
+		<choose>
+			<when test='search == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='search == "searchtitlecontent"'>
+				and ((title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%')))
+			</when>
+			<when test='search == "searchtitle"'>
+				and title like CONCAT('%',#{keyword},'%')
+			</when>
+				<when test='search == "searchcontent"'>
+				and content like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+	</select>
+
+	<!-- 공지게시판 검색 -->
+	<select id="noticeSearch" parameterType="java.util.Map"
+		resultType="com.laon.moa.VO.BoardVO">
+		select hoohee0331.board.*
+		from hoohee0331.board 
+		where level = #{level } and del = 0 and id in(select id from hoohee0331.member where member.level = 1)
+		<choose>
+			<when test='search == "searchid"'>
+				and id like CONCAT('%',#{keyword},'%')
+			</when>
+			<when test='search == "searchtitlecontent"'>
+				and ((title like CONCAT('%',#{keyword},'%')
+				or content like CONCAT('%',#{keyword},'%')))
+			</when>
+			<when test='search == "searchtitle"'>
+				and title like CONCAT('%',#{keyword},'%')
+			</when>
+		</choose>
+		order by bnum desc
+		limit #{pagenum},#{contentnum}
+	</select>
+
+</mapper>
