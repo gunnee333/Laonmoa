@@ -135,7 +135,7 @@ function sendFile(file) { //파일을 아작스로 전송하여 사진을 저장
         url : "${ContextPath}/board/imageupload",
         cache : false,
         contentType : false,
-        enctype: 'multipart/form-data',
+        /* enctype: 'multipart/form-data', */
         processData : false,
         success : function(data) {
         	if(data == "noimage"){

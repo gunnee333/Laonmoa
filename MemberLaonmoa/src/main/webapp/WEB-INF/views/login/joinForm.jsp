@@ -589,65 +589,75 @@ input, textarea:focus {
 
 			if (id == null || id == "") {
 				$("#idcheck").text("아이디를 입력해주세요.").show();
+				$("#id").focus();
 				check = false;
-
 			} else if (!idReg.test(id)) {
 				$("#idcheck").text("아이디는 6~20자 영문자/숫자로만 입력가능합니다. ").show();
+				$("#id").focus();
 				check = false;
 			}
 			if (password == null || password == "") {
 				$("#pwcheck").text("비밀번호를 입력해주세요.").show();
+				$("#password").focus();
 				check = false;
 			} else if (!idReg.test(password)) {
 				$("#pwcheck").text("비밀번호는 6~20자 영문자/숫자로만 입력가능합니다.").show();
+				$("#password").focus();
 				check = false;
 			} else if (password == id) {
 				$("#pwcheck").text("아이디와 동일한 비밀번호는 사용할 수 없습니다.").show();
+				$("#password").focus();
 				check = false;
 			} else {
 				$("#pwcheck").text("").hide();
 			}
 			if (password != password2) {
 				$("#pwcheck2").text("비밀번호가 일치하지 않습니다.").show();
+				$("#password2").focus();
 				check = false;
 			} else {
 				$("#pwcheck2").text("").hide();
 			}
 			if (name == null || name == "") {
 				$("#namecheck").text("이름을 입력해주세요.").show();
+				$("#name").focus();
 				check = false;
 			} else {
 				$("#namecheck").text("").hide();
 			}
 			if (age == null || age == "") {
 				$("#agecheck").text("생년월일을 입력해주세요.").show();
+				$("#age").focus();
 			} else if (!ageReg.test(age)) {
 				$("#agecheck").text("생년월일은 연월일로 8자리 숫자만 입력가능합니다.").show();
+				$("#age").focus();
 			} else {
 				$("#agecheck").text("").hide();
 			}
 			if (tel == null || tel == "") {
 				$("#telcheck").text("전화번호를 입력해주세요.").show();
+				$("#tel").focus();
 				check = false;
 			} else if (!telReg.test(tel)) {
 				$("#telcheck").text("전화번호를 확인해주세요.").show();
+				$("#tel").focus();
 				check = false;
 			} else {
 				$("#telcheck").text("").hide();
 			}
 			if (email == null || email == "") {
 				$("#emailcheck").text("이메일을 입력해주세요.").show();
+				$("#email").focus();
 				$("#emailcheck2").value = false;
-
 				check = false;
 			} else if (!emailReg.test(email)) {
 				$("#emailcheck").text("이메일을 확인해주세요.").show();
+				$("#email").focus();
 				$("#emailcheck2").value = false;
 				check = false;
 			} else if (emailcheck != 1) {
 				$("#emailcheck").text("인증번호를 받아 주세요.").show();
 				check = false;
-
 			} else {
 				$("#emailcheck").text("").hide();
 				$("#emailcheck2").value = "";
@@ -655,6 +665,7 @@ input, textarea:focus {
 			if (address_1 == null || address_1 == "" || zipcode == null
 					|| zipcode == "" || !zipReg.test(zipcode)) {
 				$("#addcheck").text("주소를 검색해주세요.").show();
+				$("#address_1").focus();
 				check = false;
 			} else {
 				$("#addcheck").text("").hide();
@@ -662,12 +673,13 @@ input, textarea:focus {
 			if ($("#emailoverlap").val() == "1"
 					|| $("#emailoverlap").val() == 1) {
 				$("#emailcheck").text("이메일을 다시 입력해주세요.").show();
+				$("#email").focus();
 				$("#emailcheck2").value = false;
-				//alert(email + "이메일이 들어오는지 중복이 되는지 궁금하다.");
 				check = false;
 			}
 			if ($("#idoverlap").val() == "1" || $("#idoverlap").val() == 1) {
 				$("#idcheck").text("아이디를 다시 입력해주세요.").show();
+				$("#email").focus();
 				check = false;
 			}
 		}

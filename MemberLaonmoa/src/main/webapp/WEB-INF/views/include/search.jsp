@@ -93,7 +93,6 @@
 			var keyword = $('input[name=keyword]').val();
 			var searchurl = "${ContextPath}/main/searchMain?pagenum=1";
 			/* alert(searchurl); */
-			checkit();
 			if(checkSearch){
 				searchurl += "&keyword=" + keyword;
 				document.searchfrm.action = searchurl;
@@ -102,8 +101,4 @@
 			}
 		});
 	});
-	
-	function checkit(){
-		checkSearch = true;
-	}
 </script>

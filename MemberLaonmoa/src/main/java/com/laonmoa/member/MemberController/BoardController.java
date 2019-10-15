@@ -1,15 +1,12 @@
 package com.laonmoa.member.MemberController;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -512,7 +509,8 @@ public class BoardController {
 		}
 	
 	//절대경로
-	private static final String UPLOAD_PATH = "http://hoohee0331.cdn3.cafe24.com/resource";
+	private static final String UPLOAD_PATH = "http://hoohee0331.cdn3.cafe24.com/resource/";
+	
 	//리뷰게시판 파일업로드
 	@RequestMapping(value="/imageupload",method=RequestMethod.POST)
 	@ResponseBody
@@ -521,6 +519,8 @@ public class BoardController {
 		String saveName = "";
 		String url = "";
 		for (int i = 0; i < files.length; i++) {
+			// fileName = 사용자가 업로드한 파일 명
+			// uuid.extension(랜덤아이디.확장자) / saveName => 저장할 파일 명
 			fileName = files[i].getOriginalFilename(); // 업로드 할 이미지 이름 가져오기
 			System.out.println("불러온 파일 이름 = " + fileName);
 			UUID uuid = UUID.randomUUID(); // 랜덤 아이디 생성
@@ -541,7 +541,7 @@ public class BoardController {
 				url = "noimage";
 				file.delete();
 			}
-		}
+		} // end of for
 		return url;
 	}
 	
@@ -827,7 +827,7 @@ public class BoardController {
 		String id = (String) session.getAttribute("id");
 		int bnum = Integer.parseInt(request.getParameter("bnum"));
 		String rcontent = request.getParameter("rcontent");
-		List<ReplyVO> list = null;
+		// List<ReplyVO> list = null;
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", id);
 		map.put("bnum", bnum);
